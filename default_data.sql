@@ -1,5 +1,5 @@
 -- default tech
-INSERT INTO techs (name) VALUES ('Javascript'), ('React'), ('HTML'),('CSS'), ('SQL'),('NodeJS'),('Python'), ('PHP');
+INSERT INTO techs (tech_name) VALUES ('Javascript'), ('React'), ('HTML'),('CSS'), ('SQL'),('NodeJS'),('Python'), ('PHP');
 
 -- default skills
 INSERT INTO skills (tech, skill_name, lev) VALUES 

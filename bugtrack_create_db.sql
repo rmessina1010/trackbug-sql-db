@@ -25,9 +25,9 @@ CREATE TABLE personel (
     last_name VARCHAR(255) NOT NULL,
     reports_to INT,
     p_role VARCHAR(255),
-	work_stat VARCHAR(255),
+	work_stat VARCHAR(32),
     age   SMALLINT,
-    sex   SMALLINT,
+    sex   VARCHAR(32),
     PRIMARY KEY(person_id)
 );
 
@@ -46,7 +46,7 @@ CREATE TABLE projects (
 
 CREATE TABLE techs (
     tech_id SERIAL,
-    name VARCHAR(255) NOT NULL,
+    tech_name VARCHAR(255) NOT NULL UNIQUE,
     PRIMARY KEY(tech_id)
 );
 
