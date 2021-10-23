@@ -44,7 +44,7 @@ def update(id: int):
         return jsonify(False)
 
 
-@bp.route('/add', methods=['POST'])
+@bp.route('', methods=['POST'])
 def create():
     if 'skill_name' not in request.json:
         return abort(400)

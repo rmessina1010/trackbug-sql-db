@@ -35,6 +35,9 @@ def create_app(test_config=None):
     app.register_blueprint(skills.bp)
     from .api import techs
     app.register_blueprint(techs.bp)
-    # app.register_blueprint(tweets.bp)
+    from .api import projects
+    app.register_blueprint(projects.bp)
+    from .api import personel
+    app.register_blueprint(personel.bp)
 
     return app

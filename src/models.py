@@ -24,20 +24,41 @@ class Personel(db.Model):
         self.age = age
         self.sex = sex
 
+    def serialize(self):
+        return {
+            "person_id": self.person_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "p_role": self.p_role,
+            "work_stat": self.work_stat,
+            "reports_to": self.reports_to,
+            "age": self.age,
+            "sex": self.sex
+        }
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
-    project_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    proj_title = db.Column(db.String(255),  nullable=False)
-    proj_status = db.Column(db.String(255),  nullable=False)
-    proj_excerpt = db.Column(db.String())
+    proj_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    proj_title = db.Column(db.String(255),  unique=True, nullable=False)
+    proj_status = db.Column(db.String(255))
+    proj_excerpt = db.Column(db.String(255))
     managed_by = db.Column(db.Integer)
 
     def __init__(self, proj_title: str, proj_status: str, proj_excerpt: str, managed_by: int):
         self.proj_title = proj_title
         self.proj_status = proj_status
         self.proj_excerpt = proj_excerpt
-        self.work_stat = managed_by
+        self.managed_by = managed_by
+
+    def serialize(self):
+        return {
+            "proj_id": self.proj_id,
+            "proj_title": self.proj_title,
+            "proj_status": self.proj_status,
+            "proj_excerpt": self.proj_excerpt,
+            "managed_by": self.managed_by
+        }
 
 
 class Tech(db.Model):
