@@ -55,6 +55,25 @@ class Tech(db.Model):
         }
 
 
+class Skill(db.Model):
+    __tablename__ = 'skills'
+    skill_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    skill_name = db.Column(db.String(255),  unique=True,  nullable=False)
+    tech = db.Column(db.Integer)
+    lev = db.Column(db.Integer, default=0)
+
+    def __init__(self, skill_name: str, tech: int, lev: int):
+        self.skill_name = skill_name
+        self.tech = tech
+        self.lev = lev
+
+    def serialize(self):
+        return {
+            "skill_id": self.skill_id,
+            "skill_name": self.skill_name,
+            "tech": self.tech,
+            "lev": self.lev
+        }
 
 
 """

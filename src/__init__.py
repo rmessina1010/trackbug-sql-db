@@ -31,6 +31,8 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
 
+    from .api import skills
+    app.register_blueprint(skills.bp)
     from .api import techs
     app.register_blueprint(techs.bp)
     # app.register_blueprint(tweets.bp)
