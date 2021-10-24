@@ -42,7 +42,7 @@ class Project(db.Model):
     proj_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     proj_title = db.Column(db.String(255),  unique=True, nullable=False)
     proj_status = db.Column(db.String(255))
-    proj_excerpt = db.Column(db.String(255))
+    proj_excerpt = db.Column(db.String())
     managed_by = db.Column(db.Integer)
 
     def __init__(self, proj_title: str, proj_status: str, proj_excerpt: str, managed_by: int):
@@ -94,6 +94,35 @@ class Skill(db.Model):
             "skill_name": self.skill_name,
             "tech": self.tech,
             "lev": self.lev
+        }
+
+
+class Report(db.Model):
+    __tablename__ = 'reports'
+    report_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    reported_by = db.Column(db.Integer,  nullable=False)
+    reported_on = db.Column(
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    subject = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String())
+    in_project = db.Column(db.Integer, nullable=False)
+    defined_as = db.Column(db.Integer)
+
+    def __init__(self, reported_by: str, subject: str, description: str, in_project: int):
+        self.reported_by = reported_by
+        self.subject = subject
+        self.description = description
+        self.in_project = in_project
+
+    def serialize(self):
+        return {
+            "report_id": self.report_id,
+            "reported_by": self.reported_by,
+            "reported_on": self.reported_on,
+            "subject": self.subject,
+            "description": self.description,
+            "in_project": self.in_project,
+            "defined_as": self.defined_as
         }
 
 

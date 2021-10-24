@@ -37,7 +37,7 @@ def update(id: int):
     updates = {key: request.json[key]
                for key in updatable_keys if key in request.json}
     try:
-        db.session.query(Project).where(Project.project_id == id).update(
+        db.session.query(Project).where(Project.proj_id == id).update(
             updates, synchronize_session=False)
         db.session.commit()
         return jsonify(True)
