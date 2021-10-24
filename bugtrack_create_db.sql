@@ -38,10 +38,10 @@ CREATE TABLE projects (
     proj_title  VARCHAR(255) NOT NULL,
     proj_status VARCHAR(255) NOT NULL DEFAULT 'Pending/Limbo',
     proj_excerpt TEXT,
-    CONSTRAINT fk_manager FOREIGN KEY (managed_by) REFERENCES personel (person_id), 
+    CONSTRAINT fk_manager FOREIGN KEY (managed_by) REFERENCES personel (person_id),
     PRIMARY KEY(proj_id)
 );
- 
+
 
 
 CREATE TABLE techs (
@@ -57,7 +57,7 @@ CREATE TABLE skills (
     skill_name VARCHAR(255) NOT NULL UNIQUE,
     lev SMALLINT DEFAULT 0 ,
     PRIMARY KEY(skill_id),
-    CONSTRAINT fk_tech FOREIGN KEY (tech) REFERENCES techs (tech_id) 
+    CONSTRAINT fk_tech FOREIGN KEY (tech) REFERENCES techs (tech_id)
 );
 
 
@@ -76,7 +76,7 @@ CREATE TABLE bugs (
     bug_summary TEXT NOT NULL,
     bug_status VARCHAR(255),
     in_proj INT NOT NULL,
-    asigned_to INT,
+    assigned_to INT,
     defined_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_project FOREIGN KEY (in_proj) REFERENCES projects (proj_id) ,
     CONSTRAINT fk_dev FOREIGN KEY (asigned_to) REFERENCES personel (person_id) ,

@@ -126,7 +126,6 @@ class Report(db.Model):
         }
 
 
-"""
 class Bug(db.Model):
     __tablename__ = 'bugs'
     bug_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -135,11 +134,23 @@ class Bug(db.Model):
     bug_summary = db.Column(db.String(),  nullable=False)
     in_proj = db.Column(db.Integer,  nullable=False)
     assigned_to = db.Column(db.Integer)
-    defined_on = db.Column(db.datetime)
+    defined_on = db.Column(
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 
-    def __init__(self, proj_title: str, proj_status: str, proj_excerpt: str, managed_by: int):
-        self.proj_title = proj_title
-        self.proj_status = proj_status
-        self.proj_excerpt = proj_excerpt
-        self.work_stat = managed_by
-"""
+    def __init__(self, bug_title: str, bug_status: str, bug_summary: str, in_proj: int, assigned_to: int):
+        self.bug_title = bug_title
+        self.bug_status = bug_status
+        self.bug_summary = bug_summary
+        self.in_proj = in_proj
+        self.assigned_to = assigned_to
+
+    def serialize(self):
+        return {
+            "bug_id": self.bug_id,
+            "bug_title": self.bug_title,
+            "bug_status": self.bug_status,
+            "bug_summary": self.bug_summary,
+            "in_proj": self.in_proj,
+            "assigned_to": self.assigned_to,
+            "defined_on": self.defined_on
+        }

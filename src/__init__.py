@@ -41,5 +41,7 @@ def create_app(test_config=None):
     app.register_blueprint(personel.bp)
     from .api import reports
     app.register_blueprint(reports.bp)
+    from .api import bugs
+    app.register_blueprint(bugs.bp)
 
     return app
