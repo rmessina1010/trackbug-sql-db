@@ -42,7 +42,7 @@ class Project(db.Model):
     proj_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     proj_title = db.Column(db.String(255),  unique=True, nullable=False)
     proj_status = db.Column(db.String(255))
-    proj_excerpt = db.Column(db.String())
+    proj_excerpt = db.Column(db.Text())
     managed_by = db.Column(db.Integer)
 
     def __init__(self, proj_title: str, proj_status: str, proj_excerpt: str, managed_by: int):
@@ -104,7 +104,7 @@ class Report(db.Model):
     reported_on = db.Column(
         db.DateTime, default=datetime.datetime.utcnow, nullable=False)
     subject = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.String())
+    description = db.Column(db.Text())
     in_project = db.Column(db.Integer, nullable=False)
     defined_as = db.Column(db.Integer)
 
@@ -131,7 +131,7 @@ class Bug(db.Model):
     bug_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     bug_title = db.Column(db.String(255),  nullable=False)
     bug_status = db.Column(db.String(255))
-    bug_summary = db.Column(db.String(),  nullable=False)
+    bug_summary = db.Column(db.Text(),  nullable=False)
     in_proj = db.Column(db.Integer,  nullable=False)
     assigned_to = db.Column(db.Integer)
     defined_on = db.Column(
@@ -153,4 +153,28 @@ class Bug(db.Model):
             "in_proj": self.in_proj,
             "assigned_to": self.assigned_to,
             "defined_on": self.defined_on
+        }
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    comment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.Text(),  nullable=False)
+    comm_author = db.Column(db.Integer,  nullable=False)
+    refers_to = db.Column(db.Integer,  nullable=False)
+    comm_date = db.Column(
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+    def __init__(self, text: str, comm_author: int, refers_to: int):
+        self.text = text
+        self.comm_author = comm_author
+        self.refers_to = refers_to
+
+    def serialize(self):
+        return {
+            "comment_id": self.comment_id,
+            "text": self.text,
+            "comm_author": self.comm_author,
+            "refers_to": self.refers_to,
+            "comm_date": self.comm_date,
         }
