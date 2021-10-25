@@ -61,7 +61,7 @@ CREATE TABLE skills (
 );
 
 
-CREATE TABLE devs_skills (
+CREATE TABLE dev_skills (
     person_id INT,
     skill_id INT,
     CONSTRAINT fk_dev FOREIGN KEY (person_id) REFERENCES personel (person_id) ,

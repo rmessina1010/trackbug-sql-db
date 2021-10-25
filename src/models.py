@@ -184,3 +184,33 @@ class Comment(db.Model):
             "refers_to": self.refers_to,
             "comm_date": self.comm_date,
         }
+
+
+dev_skills = db.Table(
+    'dev_skills',
+    db.Column(
+        'person_id', db.Integer,
+        db.ForeignKey('personel.person_id'),
+        primary_key=True
+    ),
+    db.Column(
+        'skill_id', db.Integer,
+        db.ForeignKey('skills.skill_id'),
+        primary_key=True
+    )
+)
+
+
+bug_skills = db.Table(
+    'bug_skills',
+    db.Column(
+        'bug_id', db.Integer,
+        db.ForeignKey('bugs.bug_id'),
+        primary_key=True
+    ),
+    db.Column(
+        'skill_id', db.Integer,
+        db.ForeignKey('skills.skill_id'),
+        primary_key=True
+    )
+)
