@@ -3,6 +3,20 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+dev_skills = db.Table(
+    'dev_skills',
+    db.Column(
+        'person_id', db.Integer,
+        db.ForeignKey('personel.person_id'),
+        primary_key=True
+    ),
+    db.Column(
+        'skill_id', db.Integer,
+        db.ForeignKey('skills.skill_id'),
+        primary_key=True
+    )
+)
+
 
 class Personel(db.Model):
     __tablename__ = 'personel'
@@ -35,6 +49,12 @@ class Personel(db.Model):
             "age": self.age,
             "sex": self.sex
         }
+
+    skilled_in = db.relationship(
+        'Skill', secondary=dev_skills,
+        lazy='subquery',
+        backref=db.backref('dev_skills', lazy=True)
+    )
 
 
 class Project(db.Model):
@@ -129,6 +149,21 @@ class Report(db.Model):
         }
 
 
+bug_skills = db.Table(
+    'bug_skills',
+    db.Column(
+        'bug_id', db.Integer,
+        db.ForeignKey('bugs.bug_id'),
+        primary_key=True
+    ),
+    db.Column(
+        'skill_id', db.Integer,
+        db.ForeignKey('skills.skill_id'),
+        primary_key=True
+    )
+)
+
+
 class Bug(db.Model):
     __tablename__ = 'bugs'
     bug_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -159,6 +194,12 @@ class Bug(db.Model):
             "defined_on": self.defined_on
         }
 
+    likes = db.relationship(
+        'Skill', secondary=bug_skills,
+        lazy='subquery',
+        backref=db.backref('bug_skills', lazy=True)
+    )
+
 
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -184,33 +225,3 @@ class Comment(db.Model):
             "refers_to": self.refers_to,
             "comm_date": self.comm_date,
         }
-
-
-dev_skills = db.Table(
-    'dev_skills',
-    db.Column(
-        'person_id', db.Integer,
-        db.ForeignKey('personel.person_id'),
-        primary_key=True
-    ),
-    db.Column(
-        'skill_id', db.Integer,
-        db.ForeignKey('skills.skill_id'),
-        primary_key=True
-    )
-)
-
-
-bug_skills = db.Table(
-    'bug_skills',
-    db.Column(
-        'bug_id', db.Integer,
-        db.ForeignKey('bugs.bug_id'),
-        primary_key=True
-    ),
-    db.Column(
-        'skill_id', db.Integer,
-        db.ForeignKey('skills.skill_id'),
-        primary_key=True
-    )
-)
