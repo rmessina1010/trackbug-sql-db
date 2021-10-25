@@ -55,7 +55,7 @@ CREATE TABLE skills (
     skill_id SERIAL,
     tech INT,
     skill_name VARCHAR(255) NOT NULL UNIQUE,
-    lev SMALLINT DEFAULT 0 ,
+    lev SMALLINT DEFAULT 1 ,
     PRIMARY KEY(skill_id),
     CONSTRAINT fk_tech FOREIGN KEY (tech) REFERENCES techs (tech_id)
 );

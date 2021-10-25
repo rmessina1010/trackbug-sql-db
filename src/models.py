@@ -11,7 +11,7 @@ class Personel(db.Model):
     last_name = db.Column(db.String(255),  nullable=False)
     p_role = db.Column(db.String(255))
     work_stat = db.Column(db.String(32))
-    reports_to = db.Column(db.Integer)
+    reports_to = db.Column(db.Integer, db.ForeignKey('personel.person_id'))
     age = db.Column(db.Integer)
     sex = db.Column(db.String(32))
 
@@ -43,7 +43,7 @@ class Project(db.Model):
     proj_title = db.Column(db.String(255),  unique=True, nullable=False)
     proj_status = db.Column(db.String(255))
     proj_excerpt = db.Column(db.Text())
-    managed_by = db.Column(db.Integer)
+    managed_by = db.Column(db.Integer, db.ForeignKey('personel.person_id'))
 
     def __init__(self, proj_title: str, proj_status: str, proj_excerpt: str, managed_by: int):
         self.proj_title = proj_title
@@ -80,8 +80,8 @@ class Skill(db.Model):
     __tablename__ = 'skills'
     skill_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     skill_name = db.Column(db.String(255),  unique=True,  nullable=False)
-    tech = db.Column(db.Integer)
-    lev = db.Column(db.Integer, default=0)
+    tech = db.Column(db.Integer, db.ForeignKey('techs.tech_id'))
+    lev = db.Column(db.Integer, default=1)
 
     def __init__(self, skill_name: str, tech: int, lev: int):
         self.skill_name = skill_name
@@ -100,13 +100,16 @@ class Skill(db.Model):
 class Report(db.Model):
     __tablename__ = 'reports'
     report_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    reported_by = db.Column(db.Integer,  nullable=False)
+    reported_by = db.Column(db.Integer, db.ForeignKey(
+        'personel.person_id'),  nullable=False)
     reported_on = db.Column(
         db.DateTime, default=datetime.datetime.utcnow, nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text())
-    in_project = db.Column(db.Integer, nullable=False)
-    defined_as = db.Column(db.Integer)
+    in_project = db.Column(db.Integer, db.ForeignKey(
+        'projects.proj_id'), nullable=False)
+    defined_as = db.Column(db.Integer, db.ForeignKey(
+        'bugs.bug_id'))
 
     def __init__(self, reported_by: str, subject: str, description: str, in_project: int):
         self.reported_by = reported_by
@@ -132,8 +135,9 @@ class Bug(db.Model):
     bug_title = db.Column(db.String(255),  nullable=False)
     bug_status = db.Column(db.String(255))
     bug_summary = db.Column(db.Text(),  nullable=False)
-    in_proj = db.Column(db.Integer,  nullable=False)
-    assigned_to = db.Column(db.Integer)
+    in_proj = db.Column(db.Integer,   db.ForeignKey(
+        'projects.proj_id'), nullable=False)
+    assigned_to = db.Column(db.Integer, db.ForeignKey('personel.person_id'))
     defined_on = db.Column(
         db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 
@@ -160,8 +164,10 @@ class Comment(db.Model):
     __tablename__ = 'comments'
     comment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     text = db.Column(db.Text(),  nullable=False)
-    comm_author = db.Column(db.Integer,  nullable=False)
-    refers_to = db.Column(db.Integer,  nullable=False)
+    comm_author = db.Column(db.Integer, db.ForeignKey(
+        'personel.person_id'),  nullable=False)
+    refers_to = db.Column(db.Integer,  db.ForeignKey(
+        'bugs.bug_id'), nullable=False)
     comm_date = db.Column(
         db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 
