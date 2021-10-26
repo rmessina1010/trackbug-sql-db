@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, abort, request
-from sqlalchemy import and_
-from ..models import Personel, db
+import sqlalchemy
+from ..models import Personel, db, dev_skills, Skill
+import sqlalchemy
+
+and_ = sqlalchemy.and_
 
 bp = Blueprint('personel', __name__, url_prefix='/personel')
 
@@ -78,3 +81,58 @@ def delete(id: int):
     except:
         # something went wrong :(
         return jsonify(False)
+
+
+@bp.route('/<int:id>/skills', methods=['POST'])
+def add_skill(id: int):
+    if 'skill_id' not in request.json:
+        return abort(400)
+    # if skill is already present,  return
+    s = sqlalchemy.select(dev_skills).where(dev_skills.c.person_id == id).where(
+        dev_skills.c.skill_id == request.json['skill_id'])
+    chk = db.session.query(s.exists()).scalar()
+    if chk:
+        return jsonify(True)
+    # check user exists
+    dev = Personel.query.get_or_404(id)
+    # check tweet exists
+    skill = Skill.query.get_or_404(id)
+    try:
+        stmt = sqlalchemy.insert(dev_skills).values(
+            person_id=id, skill_id=request.json['skill_id'])
+        db.session.execute(stmt)
+        db.session.commit()
+        return jsonify(True)
+    except:
+        return jsonify(False)
+
+
+@bp.route('/<int:id>/skills', methods=['DELETE'])
+def del_skill(id: int):
+    if 'skill_id' not in request.json:
+        return abort(400)
+    # check user exists
+    dev = Personel.query.get_or_404(id)
+    # check tweet exists
+    skill = Skill.query.get_or_404(id)
+    try:
+        stmt = sqlalchemy.delete(dev_skills).where(
+            sqlalchemy.and_(
+                dev_skills.c.person_id == id,
+                dev_skills.c.skill_id == request.json['skill_id']
+            )
+        )
+        db.session.execute(stmt)
+        db.session.commit()
+        return jsonify(True)
+    except:
+        return jsonify(None)
+
+
+@bp.route('/<int:id>/skills', methods=['GET'])
+def view_skills(id: int):
+    p = Personel.query.get_or_404(id)
+    skills = []
+    for s in p.skilled_in:
+        skills.append(s.serialize())
+    return jsonify(skills)
