@@ -194,7 +194,7 @@ class Bug(db.Model):
             "defined_on": self.defined_on
         }
 
-    likes = db.relationship(
+    req_skill = db.relationship(
         'Skill', secondary=bug_skills,
         lazy='subquery',
         backref=db.backref('bug_skills', lazy=True)

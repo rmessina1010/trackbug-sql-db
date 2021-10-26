@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, abort, request
 from sqlalchemy import and_
-from ..models import Bug, Project, db
+from ..models import Bug, Project, db, bug_skills, Skill
+import sqlalchemy
+
+and_ = sqlalchemy.and_
 
 bp = Blueprint('bugs', __name__, url_prefix='/bugs')
 
@@ -103,3 +106,58 @@ def delete(id: int):
     except:
         # something went wrong :(
         return jsonify(False)
+
+
+@bp.route('/<int:id>/skills', methods=['POST'])
+def add_skill(id: int):
+    if 'skill_id' not in request.json:
+        return abort(400)
+    # if skill is already present,  return
+    s = sqlalchemy.select(bug_skills).where(bug_skills.c.bug_id == id).where(
+        bug_skills.c.skill_id == request.json['skill_id'])
+    chk = db.session.query(s.exists()).scalar()
+    if chk:
+        return jsonify(True)
+    # check user exists
+    Bug.query.get_or_404(id)
+    # check skill exists
+    Skill.query.get_or_404(id)
+    try:
+        stmt = sqlalchemy.insert(bug_skills).values(
+            bug_id=id, skill_id=request.json['skill_id'])
+        db.session.execute(stmt)
+        db.session.commit()
+        return jsonify(True)
+    except:
+        return jsonify(False)
+
+
+@bp.route('/<int:id>/skills', methods=['DELETE'])
+def del_skill(id: int):
+    if 'skill_id' not in request.json:
+        return abort(400)
+    # check bug exists
+    Bug.query.get_or_404(id)
+    # check skill exists
+    Skill.query.get_or_404(id)
+    try:
+        stmt = sqlalchemy.delete(bug_skills).where(
+            sqlalchemy.and_(
+                bug_skills.c.bug_id == id,
+                bug_skills.c.skill_id == request.json['skill_id']
+            )
+        )
+        db.session.execute(stmt)
+        db.session.commit()
+        return jsonify(True)
+    except:
+        return jsonify(None)
+
+
+@bp.route('/<int:id>/skills', methods=['GET'])
+def view_skills(id: int):
+    b = Bug.query.get_or_404(id)
+    skills = []
+    for s in b.req_skill:
+        skills.append(s.serialize())
+    return jsonify(skills)
