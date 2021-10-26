@@ -31,19 +31,13 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    from .api import skills
+    from .api import skills, techs, projects, personel, reports, bugs, comments
     app.register_blueprint(skills.bp)
-    from .api import techs
     app.register_blueprint(techs.bp)
-    from .api import projects
     app.register_blueprint(projects.bp)
-    from .api import personel
     app.register_blueprint(personel.bp)
-    from .api import reports
     app.register_blueprint(reports.bp)
-    from .api import bugs
     app.register_blueprint(bugs.bp)
-    from .api import comments
     app.register_blueprint(comments.bp)
 
     return app
