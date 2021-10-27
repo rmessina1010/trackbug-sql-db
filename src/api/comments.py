@@ -11,8 +11,8 @@ def index():
             ('abt', 'refers_to'), ('on', 'comm_date')]
 
     # comprehesion filters query string
-    filters = [getattr(Comment, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Comment, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         comms = Comment.query.where(and_(*filters)).all()

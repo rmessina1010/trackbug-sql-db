@@ -11,8 +11,8 @@ def index():
             ('id', 'skill_id'), ('tech', 'tech')]
 
     # comprehesion filters query string
-    filters = [getattr(Skill, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Skill, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         skills = Skill.query.where(and_(*filters)).all()

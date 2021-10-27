@@ -11,8 +11,8 @@ def index():
             ('stat', 'proj_status'), ('mng', 'managed_by')]
 
     # comprehesion filters query string
-    filters = [getattr(Project, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Project, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         proj = Project.query.where(and_(*filters)).all()

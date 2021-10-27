@@ -14,8 +14,8 @@ def index():
             ('dev', 'assigned_to'), ('in', 'in_proj')]
 
     # comprehesion filters query string
-    filters = [getattr(Bug, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Bug, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         bugs = Bug.query.where(and_(*filters)).all()

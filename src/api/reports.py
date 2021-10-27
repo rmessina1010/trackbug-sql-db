@@ -11,8 +11,8 @@ def index():
             ('bug', 'defined_as'), ('by', 'reported_by'), ('in', 'in_project')]
 
     # comprehesion filters query string
-    filters = [getattr(Report, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Report, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         report = Report.query.where(and_(*filters)).all()

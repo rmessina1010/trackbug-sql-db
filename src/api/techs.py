@@ -10,8 +10,8 @@ def index():
     args = [('name', 'tech_name'), ('id', 'tech_id')]
 
     # comprehesion filters query string
-    filters = [getattr(Tech, arg[1]) == request.args.get(
-        arg[0]) for arg in args if request.args.get(arg[0]) is not None]
+    filters = [getattr(Tech, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
+        arg[0])) for arg in args if request.args.get(arg[0]) is not None]
 
     try:
         tech = Tech.query.where(and_(*filters)).all()
