@@ -67,6 +67,8 @@ def create():
 @ bp.route('/<int:id>', methods=['DELETE'])
 def delete(id: int):
     c = Comment.query.get_or_404(id)
+    if 'user_id' not in request.json or request.json['user_id'] != c.comm_author:
+        return "unauthorized!!!"
     try:
         db.session.delete(c)
         db.session.commit()

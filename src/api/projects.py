@@ -32,6 +32,9 @@ def read(id: int):
 
 @bp.route('/<int:id>', methods=['PUT'])
 def update(id: int):
+    p = Project.query.get_or_404(id)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     updatable_keys = ['proj_title', 'proj_status',
                       'managed_by', 'proj_excerpt']
     updates = {key: request.json[key]
@@ -66,6 +69,8 @@ def create():
 @bp.route('/<int:id>', methods=['DELETE'])
 def delete(id: int):
     p = Project.query.get_or_404(id)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     try:
         db.session.delete(p)
         db.session.commit()

@@ -131,7 +131,7 @@ class Report(db.Model):
     defined_as = db.Column(db.Integer, db.ForeignKey(
         'bugs.bug_id'))
 
-    def __init__(self, reported_by: str, subject: str, description: str, in_project: int):
+    def __init__(self, reported_by: int, subject: str, description: str, in_project: int):
         self.reported_by = reported_by
         self.subject = subject
         self.description = description

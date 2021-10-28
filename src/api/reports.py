@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, request
 from sqlalchemy import and_
-from ..models import Report, db
+from ..models import Report, Project, db
 
 bp = Blueprint('reports', __name__, url_prefix='/reports')
 
@@ -33,6 +33,9 @@ def read(id: int):
 @bp.route('/<int:id>', methods=['PUT'])
 def update(id: int):
     r = Report.query.get_or_404(id)
+    p = Project.query.get_or_404(r.in_project)
+    if 'user_id' not in request.json or (request.json['user_id'] != p.managed_by and request.json['user_id'] != r.reported_by):
+        return "unauthorized!!!"
     updatable_keys = ['subject', 'description', 'in_project']
     updates = {key: request.json[key]
                for key in updatable_keys if key in request.json}
@@ -49,7 +52,10 @@ def update(id: int):
 def define(id: int):
     if 'defined_as' not in request.json:
         return abort(400)
-    Report.query.get_or_404(id)
+    r = Report.query.get_or_404(id)
+    p = Project.query.get_or_404(r.in_project)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     try:
         db.session.query(Report).where(Report.report_id == id).update(
             {"defined_as": request.json["defined_as"]}, synchronize_session=False)
@@ -69,6 +75,11 @@ def create():
             subject=request.json['subject'],
             description=request.json['description'],
             in_project=request.json['in_project']
+
+            # reported_by=request.json['reported_by'],
+            # subject=request.json['subject'],
+            # description=request.json['description'],
+            # in_project=request.json['in_project']
         )
         db.session.add(r)
         db.session.commit()
@@ -80,6 +91,10 @@ def create():
 @bp.route('/<int:id>', methods=['DELETE'])
 def delete(id: int):
     r = Report.query.get_or_404(id)
+    p = Project.query.get_or_404(r.in_project)
+    if 'user_id' not in request.json or (request.json['user_id'] != p.managed_by and request.json['user_id'] != r.reported_by):
+        return "unauthorized!!!"
+
     try:
         db.session.delete(r)
         db.session.commit()

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, request
 from sqlalchemy import and_
-from ..models import Bug, Project, db, bug_skills, Skill
+from ..models import Bug, Project, Skill, db, bug_skills
 import sqlalchemy
 
 and_ = sqlalchemy.and_
@@ -67,7 +67,7 @@ def assign(id: int):
         return "unauthorized!!!"
     try:
         db.session.query(Bug).where(Bug.bug_id == id).update(
-            {"assigned_to": request.json['assigned_to']}, synchronize_session=False)
+            {"assigned_to": request.json["assigned_to"]}, synchronize_session=False)
         db.session.commit()
         return jsonify(True)
     except:
@@ -99,6 +99,9 @@ def create():
 @ bp.route('/<int:id>', methods=['DELETE'])
 def delete(id: int):
     b = Bug.query.get_or_404(id)
+    p = Project.query.get_or_404(b.in_proj)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     try:
         db.session.delete(b)
         db.session.commit()
@@ -119,7 +122,10 @@ def add_skill(id: int):
     if chk:
         return jsonify(True)
     # check user exists
-    Bug.query.get_or_404(id)
+    b = Bug.query.get_or_404(id)
+    p = Project.query.get_or_404(b.in_proj)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     # check skill exists
     Skill.query.get_or_404(id)
     try:
@@ -137,7 +143,10 @@ def del_skill(id: int):
     if 'skill_id' not in request.json:
         return abort(400)
     # check bug exists
-    Bug.query.get_or_404(id)
+    b = Bug.query.get_or_404(id)
+    p = Project.query.get_or_404(b.in_proj)
+    if 'user_id' not in request.json or request.json['user_id'] != p.managed_by:
+        return "unauthorized!!!"
     # check skill exists
     Skill.query.get_or_404(id)
     try:

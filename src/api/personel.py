@@ -96,7 +96,7 @@ def add_skill(id: int):
     # check person exists
     Personel.query.get_or_404(id)
     # check skill exists
-    Skill.query.get_or_404(id)
+    Skill.query.get_or_404(request.json['skill_id'])
     try:
         stmt = sqlalchemy.insert(dev_skills).values(
             person_id=id, skill_id=request.json['skill_id'])
@@ -114,7 +114,7 @@ def del_skill(id: int):
     # check person exists
     Personel.query.get_or_404(id)
     # check bug exists
-    Skill.query.get_or_404(id)
+    Skill.query.get_or_404(request.json['skill_id'])
     try:
         stmt = sqlalchemy.delete(dev_skills).where(
             sqlalchemy.and_(
