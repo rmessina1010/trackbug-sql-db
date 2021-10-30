@@ -75,11 +75,6 @@ def create():
             subject=request.json['subject'],
             description=request.json['description'],
             in_project=request.json['in_project']
-
-            # reported_by=request.json['reported_by'],
-            # subject=request.json['subject'],
-            # description=request.json['description'],
-            # in_project=request.json['in_project']
         )
         db.session.add(r)
         db.session.commit()
