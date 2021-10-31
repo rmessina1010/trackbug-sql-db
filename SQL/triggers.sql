@@ -40,7 +40,8 @@ RETURNS TRIGGER
 AS $$
     BEGIN
 		DELETE  FROM reports WHERE  defined_as = OLD.bug_id;
-		DELETE  FROM comments WHERE  refers_to = OLD.bug_id;
+		DELETE  FROM "comments" WHERE  refers_to = OLD.bug_id;
+		DELETE  FROM bug_skills WHERE  bug_id = OLD.bug_id;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
@@ -51,27 +52,27 @@ $$ LANGUAGE plpgsql;
 
 --TRIGGERS:
 	--TECHS
-CREATE TRIGGER tech_rel 
+CREATE TRIGGER tech_rel
 BEFORE DELETE ON  techs
 FOR EACH ROW
 EXECUTE FUNCTION remove_tech();
 
 	--SKILLS  ******
-CREATE TRIGGER skill_rel 
+CREATE TRIGGER skill_rel
 BEFORE DELETE ON  skills
 FOR EACH ROW
 EXECUTE FUNCTION remove_skill();
 
 
 	--PROJECTS  ******
-CREATE TRIGGER proj_rel 
+CREATE TRIGGER proj_rel
 BEFORE DELETE ON  projects
 FOR EACH ROW
 EXECUTE FUNCTION remove_proj();
 
 
 	--BUGS  ******
-CREATE TRIGGER bug_rel 
+CREATE TRIGGER bug_rel
 BEFORE DELETE ON  bugs
 FOR EACH ROW
 EXECUTE FUNCTION remove_bug();
