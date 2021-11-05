@@ -76,6 +76,7 @@ CREATE TABLE bugs (
     bug_summary TEXT NOT NULL,
     bug_status VARCHAR(255),
     in_proj INT NOT NULL,
+    bug_weight INT NOT NULL DEFAULT 1,
     assigned_to INT,
     defined_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_project FOREIGN KEY (in_proj) REFERENCES projects (proj_id) ON DELETE CASCADE,
