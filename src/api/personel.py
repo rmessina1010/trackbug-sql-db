@@ -142,9 +142,7 @@ def view_skills(id: int):
     return jsonify(skills)
 
 
-@ bp.route('/load/<int:id>', methods=['GET'])
-def load(id):
-    where = ' WHERE assigned_to ' + (' = '+str(id)+' ' if id else ' IS NULL ')
+def load_query(where: str):
     sql = text(loadSELECTtxt+where+loadGROUPtxt)
     result = db.engine.execute(sql)
     load = [{'load': row['load'],
@@ -156,4 +154,11 @@ def load(id):
              'p_role':row['p_role'],
              'work_stat':row['work_stat'],
              }for row in result]
+    return load
+
+
+@ bp.route('/load/<int:id>', methods=['GET'])
+def load(id):
+    where = ' WHERE assigned_to ' + (' = '+str(id)+' ' if id else ' IS NULL ')
+    load = load_query(where)
     return jsonify(load)
