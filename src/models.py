@@ -170,6 +170,7 @@ class Bug(db.Model):
     bug_title = db.Column(db.String(255),  nullable=False)
     bug_status = db.Column(db.String(255))
     bug_summary = db.Column(db.Text(),  nullable=False)
+    bug_weight = db.Column(db.Integer)
     in_proj = db.Column(db.Integer,   db.ForeignKey(
         'projects.proj_id'), nullable=False)
     assigned_to = db.Column(db.Integer, db.ForeignKey('personel.person_id'))
@@ -189,6 +190,7 @@ class Bug(db.Model):
             "bug_title": self.bug_title,
             "bug_status": self.bug_status,
             "bug_summary": self.bug_summary,
+            "bug_weight": self.bug_weight,
             "in_proj": self.in_proj,
             "assigned_to": self.assigned_to,
             "defined_on": self.defined_on

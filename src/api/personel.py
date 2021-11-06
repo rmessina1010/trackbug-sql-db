@@ -2,10 +2,14 @@ from flask import Blueprint, jsonify, abort, request
 import sqlalchemy
 from ..models import Personel, db, dev_skills, Skill
 import sqlalchemy
+from sqlalchemy import text
 
 and_ = sqlalchemy.and_
 
 bp = Blueprint('personel', __name__, url_prefix='/personel')
+
+loadSELECTtxt = 'WITH loadsTable AS (SELECT COUNT(*), CAST(AVG(bug_weight) AS DECIMAL(4, 3)), SUM(bug_weight) as load, assigned_to as dev FROM bugs'
+loadGROUPtxt = ' group by assigned_to) SELECT count, avg, load, dev, first_name, last_name, reports_to, p_role, work_stat FROM loadsTable  LEFT JOIN personel ON personel.person_id=loadsTable.dev'
 
 
 @bp.route('', methods=['GET'])
@@ -136,3 +140,20 @@ def view_skills(id: int):
     for s in p.skilled_in:
         skills.append(s.serialize())
     return jsonify(skills)
+
+
+@ bp.route('/load/<int:id>', methods=['GET'])
+def load(id):
+    where = ' WHERE assigned_to ' + (' = '+str(id)+' ' if id else ' IS NULL ')
+    sql = text(loadSELECTtxt+where+loadGROUPtxt)
+    result = db.engine.execute(sql)
+    load = [{'load': row['load'],
+             'tasks':row['count'],
+             'dev_id':row['dev'],
+             'first_name':row['first_name'],
+             'last_name':row['last_name'],
+             'reports_to':row['reports_to'],
+             'p_role':row['p_role'],
+             'work_stat':row['work_stat'],
+             }for row in result]
+    return jsonify(load)
