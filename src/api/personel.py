@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, abort, request
 import sqlalchemy
+from sqlalchemy.sql.expression import true
 from ..models import Personel, db, dev_skills, Skill
 import sqlalchemy
 from sqlalchemy import text
@@ -8,8 +9,8 @@ and_ = sqlalchemy.and_
 
 bp = Blueprint('personel', __name__, url_prefix='/personel')
 
-loadSELECTtxt = 'WITH loadsTable AS (SELECT COUNT(*), CAST(AVG(bug_weight) AS DECIMAL(4, 3)), SUM(bug_weight) as load, assigned_to as dev FROM bugs'
-loadGROUPtxt = ' group by assigned_to) SELECT count, avg, load, dev, first_name, last_name, reports_to, p_role, work_stat FROM loadsTable  LEFT JOIN personel ON personel.person_id=loadsTable.dev'
+loadSELECTtxt = 'WITH loadsTable AS (SELECT COUNT(*) as tasks, CAST(AVG(bug_weight) AS DECIMAL(4, 3)), SUM(bug_weight) as load, assigned_to as dev FROM bugs'
+loadGROUPtxt = ' group by assigned_to) SELECT tasks, avg, load, dev, first_name, last_name, reports_to, p_role, work_stat FROM loadsTable LEFT JOIN personel ON personel.person_id=loadsTable.dev'
 
 
 @bp.route('', methods=['GET'])
@@ -143,10 +144,10 @@ def view_skills(id: int):
 
 
 def load_query(where: str):
-    sql = text(loadSELECTtxt+where+loadGROUPtxt)
+    sql = text(loadSELECTtxt+loadGROUPtxt+where)
     result = db.engine.execute(sql)
     load = [{'load': row['load'],
-             'tasks':row['count'],
+             'tasks':row['tasks'],
              'dev_id':row['dev'],
              'first_name':row['first_name'],
              'last_name':row['last_name'],
@@ -157,8 +158,29 @@ def load_query(where: str):
     return load
 
 
+def operator_for(qry_arg: str):
+    if qry_arg.endswith('_lt'):
+        return ' < '
+    if qry_arg.endswith('_gt'):
+        return ' > '
+    return ' = '
+
+
 @ bp.route('/load/<int:id>', methods=['GET'])
-def load(id):
-    where = ' WHERE assigned_to ' + (' = '+str(id)+' ' if id else ' IS NULL ')
+def load_id(id):
+    where = ' WHERE dev ' + (' = '+str(id)+' ' if id else ' IS NULL ')
+    load = load_query(where)
+    return jsonify(load)
+
+
+@ bp.route('/load', methods=['GET'])
+def load():
+    where = ''
+    if request.args:
+        args = [('id', 'dev'), ('mng', 'reports_to'), ('stat', 'work_stat', 1), ('role', 'p_role', 1), ('load', 'load'),
+                ('tasks', 'tasks'), ('load_lt', 'load'), ('tasks_lt', 'tasks'), ('load_gt', 'load'), ('tasks_gt', 'tasks')]
+        where = ' WHERE TRUE ' + \
+            ' '.join([' AND ' + arg[1] + (operator_for(arg[0]) + (request.args.get(arg[0]) if len(arg) < 3 else "'" + request.args.get(arg[0]) + "'") if request.args.get(arg[0]) != '' else ' IS NULL ')
+                     for arg in args if (request.args.get(arg[0]) is not None)])
     load = load_query(where)
     return jsonify(load)
