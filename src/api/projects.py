@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, request
 from sqlalchemy import and_
-from ..models import Project, db
+from ..models import Project, Bug, Personel, db
 
 bp = Blueprint('projects', __name__, url_prefix='/projects')
 
@@ -78,3 +78,19 @@ def delete(id: int):
     except:
         # something went wrong :(
         return jsonify(False)
+
+
+@bp.route('/<int:id>/staff', methods=['GET'])
+def staff(id: int):
+    s = db.session.query(Personel, Bug).where(
+        Bug.in_proj == id).join(Personel).group_by(Personel.person_id)
+    staff = []
+    for p, b in s:
+        staff.append({'dev_id': p.person_id,
+                     'first_name': p.first_name,
+                      'last_name': p.last_name,
+                      'sex': p.sex,
+                      'work_stat': p.work_stat,
+                      'p_role': p.p_role
+                      })
+    return jsonify(staff)
