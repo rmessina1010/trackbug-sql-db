@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, abort, request
-from sqlalchemy import and_
+from sqlalchemy import and_, sql
 from ..models import Project, Bug, Personel, db
 
 bp = Blueprint('projects', __name__, url_prefix='/projects')
@@ -82,10 +82,17 @@ def delete(id: int):
 
 @bp.route('/<int:id>/staff', methods=['GET'])
 def staff(id: int):
-    s = db.session.query(Personel, Bug).where(
-        Bug.in_proj == id).join(Personel).group_by(Personel.person_id)
+    prj = Project.query.get_or_404(id)
+
+    staff_qry = sql.select(Bug.assigned_to).where(
+        Bug.in_proj == id)
+    s = db.session.query(Personel).filter(
+        Personel.person_id.in_(staff_qry))
+    m = Personel.query.get(prj.managed_by)
+
+    manager = m.serialize() if m else None
     staff = []
-    for p, b in s:
+    for p in s:
         staff.append({'dev_id': p.person_id,
                      'first_name': p.first_name,
                       'last_name': p.last_name,
@@ -93,4 +100,5 @@ def staff(id: int):
                       'work_stat': p.work_stat,
                       'p_role': p.p_role
                       })
-    return jsonify(staff)
+
+    return jsonify({'manager': manager,  'staff': staff})
