@@ -10,7 +10,7 @@ and_ = sqlalchemy.and_
 bp = Blueprint('personel', __name__, url_prefix='/personel')
 
 loadSELECTtxt = 'WITH loadsTable AS (SELECT COUNT(*) as tasks, CAST(AVG(bug_weight) AS DECIMAL(4, 3)), SUM(bug_weight) as load, assigned_to as dev FROM bugs'
-loadGROUPtxt = ' group by assigned_to) SELECT tasks, avg, load, dev, first_name, last_name, reports_to, p_role, work_stat FROM loadsTable LEFT JOIN personel ON personel.person_id=loadsTable.dev'
+loadGROUPtxt = ' group by assigned_to) SELECT tasks, avg, load, dev, first_name, last_name, reports_to, p_role, work_stat, email FROM loadsTable LEFT JOIN personel ON personel.person_id=loadsTable.dev'
 
 
 @bp.route('', methods=['GET'])
@@ -18,7 +18,7 @@ def index():
     args = [('fn', 'first_name'), ('id', 'person_id'),
             ('ln', 'last_name'), ('mng', 'reports_to'),
             ('stat', 'work_stat'), ('role', 'p_role'),
-            ('age', 'age'), ('sex', 'sex')]
+            ('age', 'age'), ('sex', 'sex'), ('email', 'email')]
 
     # comprehesion filters query string
     filters = [getattr(Personel, arg[1]) == (None if request.args.get(arg[0]) == '' else request.args.get(
@@ -42,7 +42,7 @@ def read(id: int):
 
 @ bp.route('/<int:id>', methods=['PUT'])
 def update(id: int):
-    updatable_keys = ['first_name', 'last_name',
+    updatable_keys = ['first_name', 'last_name', 'email',
                       'reports_to', 'p_role', 'work_stat', 'age', 'sex']
     updates = {key: request.json[key]
                for key in updatable_keys if key in request.json}
@@ -67,7 +67,9 @@ def create():
             work_stat=request.json['work_stat'],
             reports_to=request.json['reports_to'],
             age=request.json['age'],
-            sex=request.json['sex']
+            sex=request.json['sex'],
+            email=request.json['email'],
+            password=request.json['password']
         )
         db.session.add(p)
         db.session.commit()
@@ -154,6 +156,7 @@ def load_query(where: str):
              'reports_to':row['reports_to'],
              'p_role':row['p_role'],
              'work_stat':row['work_stat'],
+             'email':row['email']
              }for row in result]
     return load
 
@@ -177,7 +180,7 @@ def load_id(id):
 def load():
     where = ''
     if request.args:
-        args = [('id', 'dev'), ('mng', 'reports_to'), ('stat', 'work_stat', 1), ('role', 'p_role', 1), ('load', 'load'),
+        args = [('id', 'dev'), ('mng', 'reports_to'), ('stat', 'work_stat', 1), ('role', 'p_role', 1), ('email', 'email', 1), ('load', 'load'),
                 ('tasks', 'tasks'), ('load_lt', 'load'), ('tasks_lt', 'tasks'), ('load_gt', 'load'), ('tasks_gt', 'tasks')]
         where = ' WHERE TRUE ' + \
             ' '.join([' AND ' + arg[1] + (operator_for(arg[0]) + (request.args.get(arg[0]) if len(arg) < 3 else "'" + request.args.get(arg[0]) + "'") if request.args.get(arg[0]) != '' else ' IS NULL ')
