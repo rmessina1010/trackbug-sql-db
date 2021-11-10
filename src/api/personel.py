@@ -5,6 +5,16 @@ from ..models import Personel, db, dev_skills, Skill
 import sqlalchemy
 from sqlalchemy import text
 
+import hashlib
+import secrets
+
+
+def scramble(password: str):
+    """Hash and salt the given password"""
+    salt = secrets.token_hex(16)
+    return hashlib.sha512((password + salt).encode('utf-8')).hexdigest()
+
+
 and_ = sqlalchemy.and_
 
 bp = Blueprint('personel', __name__, url_prefix='/personel')
@@ -46,6 +56,8 @@ def update(id: int):
                       'reports_to', 'p_role', 'work_stat', 'age', 'sex']
     updates = {key: request.json[key]
                for key in updatable_keys if key in request.json}
+    if 'password' in request.json:
+        updates['password'] = scramble(request.json['password'])
     try:
         db.session.query(Personel).where(Personel.person_id == id).update(
             updates, synchronize_session=False)
@@ -57,7 +69,7 @@ def update(id: int):
 
 @ bp.route('', methods=['POST'])
 def create():
-    if 'first_name' not in request.json or 'last_name' not in request.json:
+    if 'first_name' not in request.json or 'last_name' not in request.json or 'email' not in request.json or 'password' not in request.json:
         return abort(400)
     try:
         p = Personel(
@@ -69,7 +81,7 @@ def create():
             age=request.json['age'],
             sex=request.json['sex'],
             email=request.json['email'],
-            password=request.json['password']
+            password=scramble(request.json['password'])
         )
         db.session.add(p)
         db.session.commit()
