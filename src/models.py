@@ -30,8 +30,9 @@ class Personel(db.Model):
     sex = db.Column(db.String(32))
     email = db.Column(db.String(255),  nullable=False)
     password = db.Column(db.String(255),  nullable=False)
+    nacl = db.Column(db.String(255),  nullable=False)
 
-    def __init__(self, first_name: str, last_name: str, p_role: str, work_stat: str, reports_to: int, age: int, sex: str, email: str, password: str):
+    def __init__(self, first_name: str, last_name: str, p_role: str, work_stat: str, reports_to: int, age: int, sex: str, email: str, password: str, nacl: str):
         self.first_name = first_name
         self.last_name = last_name
         self.p_role = p_role
@@ -41,6 +42,7 @@ class Personel(db.Model):
         self.sex = sex
         self.email = email
         self.password = password
+        self.nacl = nacl
 
     def serialize(self):
         return {
@@ -53,7 +55,8 @@ class Personel(db.Model):
             "age": self.age,
             "sex": self.sex,
             "email": self.email,
-            "password": self.password
+            "password": self.password,
+            "nacl": self.nacl
         }
 
     skilled_in = db.relationship(

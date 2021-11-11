@@ -9,10 +9,18 @@ import hashlib
 import secrets
 
 
-def scramble(password: str):
+def scramble(password: str, salt):
     """Hash and salt the given password"""
-    salt = secrets.token_hex(16)
-    return hashlib.sha512((password + salt).encode('utf-8')).hexdigest()
+    if salt == True:
+        salt = secrets.token_hex(16)
+    return (hashlib.sha512((password + salt).encode('utf-8')).hexdigest(), salt)
+
+
+def pass_check(upass: str, bdpass: str, salt: str):
+    passdata = scramble(upass, salt)
+    if bdpass == passdata[0]:
+        return True
+    return False
 
 
 and_ = sqlalchemy.and_
@@ -57,7 +65,8 @@ def update(id: int):
     updates = {key: request.json[key]
                for key in updatable_keys if key in request.json}
     if 'password' in request.json:
-        updates['password'] = scramble(request.json['password'])
+        updates['password'], updates['nacl'] = scramble(
+            request.json['password'], True)
     try:
         db.session.query(Personel).where(Personel.person_id == id).update(
             updates, synchronize_session=False)
@@ -72,6 +81,7 @@ def create():
     if 'first_name' not in request.json or 'last_name' not in request.json or 'email' not in request.json or 'password' not in request.json:
         return abort(400)
     try:
+        hashed, salt = scramble(request.json['password'], True)
         p = Personel(
             first_name=request.json['first_name'],
             last_name=request.json['last_name'],
@@ -81,7 +91,8 @@ def create():
             age=request.json['age'],
             sex=request.json['sex'],
             email=request.json['email'],
-            password=scramble(request.json['password'])
+            password=hashed,
+            nacl=salt
         )
         db.session.add(p)
         db.session.commit()
@@ -199,3 +210,15 @@ def load():
                      for arg in args if (request.args.get(arg[0]) is not None)])
     load = load_query(where)
     return jsonify(load)
+
+
+@ bp.route('/sim/login', methods=['POST'])
+def login():
+    if 'password' not in request.json or 'email' not in request.json:
+        return jsonify(None)
+    p = Personel.query.filter(
+        getattr(Personel, 'email') == request.json['email']).one()
+    if p:
+        if jsonify(pass_check(request.json['password'], p.password, p.nacl)):
+            return jsonify(p.serialize())
+    return jsonify(False)
